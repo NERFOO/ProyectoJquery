@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Mostrar Clientes mediante botones</h1>
+    <ul>
+        <li>Leer XML</li>
+        <li>Crear botones dinamicos</li>
+        <li>En el boton debe aparecer el nombre del cliente</li>
+        <li>Al pulsar el boton sale la informacion de dicho cliente</li>
+    </ul>
+
+    <div id="botones"></div>
+    <div id="informacion"></div>
+
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.get("docs/ClientesXML.xml", function(data) {
+                console.log("Leyendo XML");
+                var longitud = $(data).find("CLIENTE").length;
+
+                for(var i = 1; i <= longitud; i++) {
+                    $(data).find(`CLIENTE[IDCLIENTE="${i}"]`).each(function() {
+                        var nomCliente = $(this).find("NOMBRE").text();
+                        $("#botones").append(`<button type="button" id="${i}" value="${i}">${nomCliente}</button>`);
+                    });
+                }
+
+                $("button").click(function() {
+                    var valor = $(this).val();
+
+                    var html = "";
+                    $(data).find(`CLIENTE[IDCLIENTE="${valor}"]`).each(function() {
+                        var direccion = $(this).find("DIRECCION").text();
+                        var email = $(this).find("EMAIL").text();
+                        var codPostal = $(this).find("CODIGOPOSTAL").text();
+                        var pagWeb = $(this).find("PAGINAWEB").text();
+                        var imgCliente = $(this).find("IMAGENCLIENTE").text();
+
+                        html +=`
+                        <div>
+                            <address>Direccion: ${direccion}</address>
+                            <p>Email: ${email}</p>
+                            <p>Codigo Postal: ${codPostal}</p>
+                            <a href="${pagWeb}">Pagina Web</a>
+                            <br>
+                            <img src="${imgCliente}" alt="imagen Alternativa" style="width:150px; height:150px">
+                        </div>
+                        `;
+                    });
+                    $("#informacion").html(html);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

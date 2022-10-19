@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>CRUD departamentos de JSON</h1>
+    <label>Numero : </label>
+    <input type="text" id="cajaNumero">
+    <label>Nombre : </label>
+    <input type="text" id="cajaNombre">
+    <label>Localidad : </label>
+    <input type="text" id="cajaLocalidad">
+    <hr/>
+    <button type="button" id="botonInsertar">Insertar</button>
+    <button type="button" id="botonModificar">Modificar</button>
+    <button type="button" id="botonEliminar">Eliminar</button>
+    <hr/>
+    <table border="1" id="tablaDepartamentos">
+        <thead>
+            <tr>
+                <th>Numero</th>
+                <th>Nombre</th>
+                <th>Localidad</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script>
+        var url = "https://apicruddepartamentoscore.azurewebsites.net/";
+
+        //GET
+        function cargarDepartamentos() {
+            var request = "api/departamentos/";
+            $.ajax({
+                "url": url + request ,
+                "method": "GET" ,
+                "dataType" : "json" ,
+                "success": function(data) {
+                    var html = "";
+                    $.each(data, function(index, dept) {
+                        html += "<tr>";
+                        html += "<td>" + dept.numero + "</td>";
+                        html += "<td>" + dept.nombre + "</td>";
+                        html += "<td>" + dept.localidad + "</td>";
+                        html += "</tr>";
+                    });
+                    $("#tablaDepartamentos tbody").html(html);
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            //GET
+            cargarDepartamentos();
+
+            //DELETE
+            $("#botonEliminar").click(function() {
+                var numero = $("#cajaNumero").val();
+                var request = "api/departamentos/" + numero;
+                $.ajax({
+                    "url": url + request ,
+                    "type": "DELETE" ,
+                    "success": function() {
+                        console.log("Eliminado");
+                        cargarDepartamentos();
+                    }
+                });
+            });
+
+            //PUT
+            $("#botonModificar").click(function() {
+                var datos = getJsonDepartamento();
+                var request = "api/departamentos/";
+                $.ajax({
+                    "url": url + request ,
+                    "type": "PUT" ,
+                    "data": datos ,
+                    "contentType": "application/json" ,
+                    "success": function() {
+                        console.log("modificado");
+                        cargarDepartamentos();
+                    }
+                });
+            });
+
+            //POST
+            $("#botonInsertar").click(function() {
+                var num = parseInt($("#cajaNumero").val());
+                var nom = $("#cajaNombre").val();
+                var loc = $("#cajaLocalidad").val();
+                //DEBEMOS ENVIAR UN OBJETO JSON AL METODO POST
+                //CREAMOS UN NUEVO OBJETO JAVASCRIPT
+                var departamento = new Object();
+                //LAS PROPIEDADES DEBEN COINCIDIR CON EL SERVICIO
+                departamento.numero = num;
+                departamento.nombre = nom;
+                departamento.localidad = loc;
+                //EL OBJETO CREADO DEBEMOS TRANSFORMARLO AL FORMATO DEL SERVICIO JSON
+                //PARA TRANSFORMAR A JSON: JSON.STRINGFY(OBJETO)
+                var dataJson = JSON.stringify(departamento);
+                console.log(dataJson);
+                //LAS PETICIONES NO GET UTILIZAN $.AJAX
+                //SI ENVIAMOS INFORMACION AL SERVICIO DEBEMOS INCLUIR DOS ELEMENTOS MAS DENTRO DE $.AJAX
+                // -contentType: EL TIPO DE DATO A ENVIAR
+                // -data: EL OBJETO A ENVIAR
+                var request = "api/departamentos/";
+                $.ajax({
+                    "url": url + request ,
+                    "type": "POST" ,
+                    "data": dataJson ,
+                    "contentType": "application/json" ,
+                    "success": function() {
+                        console.log("Insertado");
+                        cargarDepartamentos();
+                    }
+                });
+            });
+
+            //PUT
+            function getJsonDepartamento() {
+                var num = parseInt($("#cajaNumero").val());
+                var nom = $("#cajaNombre").val();
+                var loc = $("#cajaLocalidad").val();
+                var departamento = new Object();
+                departamento.numero = num;
+                departamento.nombre = nom;
+                departamento.localidad = loc;
+                var dataJson = JSON.stringify(departamento);
+                return dataJson;
+            }
+        });
+    </script>
+</body>
+</html>

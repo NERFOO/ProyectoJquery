@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Sumar numeros con botones dinamicos</h1>
+    <div id="cajaBotones"></div>
+
+    <h2 style="color: blue;">La suma es 0</h2>
+
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var suma = 0;
+            for(var i = 0; i < 10; i++) {
+                var random = Math.floor(Math.random()*11);
+                $("#cajaBotones").append(`<button value="${random}" style="width:40px;height:40px">${random}</button>`);
+            }
+            $("button").click(function() {
+                suma += parseInt($(this).val());
+                $("h2").text("La suma es " + suma);
+            });
+        });
+    </script>
+</body>
+</html>

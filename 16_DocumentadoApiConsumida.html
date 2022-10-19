@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Maestro detalle</h1>
+    <table border="1" id="cajaDepartamento">
+        <thead>
+            <tr>
+                <th>Número</th>
+                <th>Nombre</th>
+                <th>Localidad</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <hr/>
+
+    <table border="1" id="cajaEmpleados">
+        <thead>
+            <tr>
+                <th>Apellido</th>
+                <th>Oficio</th>
+                <th>Salario</th>
+                <th>Departamento</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script>
+        var urlDepartamento = "https://apicruddepartamentoscore.azurewebsites.net/";
+        var urlEmpleados = "https://apiempleadosspgs.azurewebsites.net/";
+
+        function mostrarDatos(){
+            var request = "api/departamentos/";
+            $.ajax({
+                "url": urlDepartamento + request ,
+                "method": "GET" ,
+                "dataType": "json" ,
+                "success": function(data) {
+                    //LIMPIAMOS LA TABLA EN CASO DE QUE CONTENGA OTROS OBJETOS Y NO INTERFIERAN EN EL CODIGO
+                    $("#cajaDepartamento tbody").text("");
+
+                    //RECORREMOS CADA KEY VALUE DE CADA OBJETO DE LA API
+                    $.each(data, function(index, dept) {
+
+                        //CREACION Y DECLARACION DE OBJETOS DINAMICOS
+                        var dataNumero = $("<td>", { "text": dept.numero });
+                        var dataNombre = $("<td>", { "text": dept.nombre });
+                        var dataLocalidad = $("<td>", { "text": dept.localidad });
+
+                        //SE CREA EL ESPACIO DONDE POSTERIORMENTE SE INTRODUCIRA EL BOTON
+                        var cajaBoton = $("<td>");
+                        var accionBoton = $("<button>", {"text": "Empleados", "value": dept.numero});
+
+                        //CREAMOS UN PADRE DONDE IREMOS AÑADIENDO Y RELLENANDO LA TABLA
+                        var fila = $("<tr>");
+                        fila.append(dataNumero);
+                        fila.append(dataNombre);
+                        fila.append(dataLocalidad);
+                        fila.append(cajaBoton);
+                        cajaBoton.append(accionBoton);
+
+                        //AÑADIMOS EL CONTENIDO AL HTML
+                        //SE AÑADE CON APPEND YA QUE SON OBJETOS GENERADOS DINAMICAMENTE
+                        $("#cajaDepartamento tbody").append(fila);
+
+                        //GENERAMOS EL EVENTO DEL BOTON AL SER CLICKEADO
+                        $(accionBoton).click(function() {
+                            //RECOGEMOS EL VALOR DEL BOTON PARA DESPUES HACER LA PETICION
+                            var valorBoton = $(this).val();
+                            var request = "/api/empleados/empleadosdepartamento/";
+
+                            //AQUI SIMPLEMENTE LLAMAMOS A LA API Y DEVOLVEMOS LOS DATOS DE MANERA PLANA CON HTML
+                            $.ajax({
+                                "url": urlEmpleados + request + valorBoton,
+                                "method": "GET" ,
+                                "dataType": "json" ,
+                                "success": function(data) {
+
+                                    var html = "";
+
+                                    $.each(data, function(index, empleado) {
+                                        $("#cajaEmpleados tbody").text("");
+
+                                        html += "<tr>";
+                                        html += "<td>" + empleado.apellido + "</td>";
+                                        html += "<td>" + empleado.oficio + "</td>";
+                                        html += "<td>" + empleado.salario + "</td>";
+                                        html += "<td>" + empleado.departamento + "</td>";
+                                        html += "</tr>";
+                                    });
+                                    $("#cajaEmpleados tbody").html(html);
+                                }
+                            });
+                        });
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            mostrarDatos();
+        });
+    </script>
+</body>
+</html>

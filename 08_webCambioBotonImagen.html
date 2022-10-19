@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Cambiar imagen al pulsar el boton</h1>
+    <h2>Mueve el input para seleccionar las imagenes y botones deseadas</h2>
+    <input type="range" id="rango" min="0" max="10" value="1">
+    <label>1</label>
+    <section style="display: flex;"></section>
+
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("input").change(function() {
+                $("section").text("");
+                $("label").text($("input").val());
+
+                for(var i = 1; i <= $("input").val(); i++) {
+                    $("section").append(`
+                        <div id="div${i}">
+                            <button type="button" id="button${i}" value="${i}">Imagen ${i}</button>
+                            <br>
+                            <img src="img/img1.jpg" alt="imagen 1" id="imagen${i}" style="width:100px; height:100px">
+                        </div>`);
+
+                    $(`button`).click(function() {
+                        var valor = $(this).val();
+                        console.log(valor);
+                        $(`#imagen${valor}`).attr("src", "img/img2.jpg");
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

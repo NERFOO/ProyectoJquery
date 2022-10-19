@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Generar controls dinamicos</h1>
+    <input type="range" min="1" max="10" value="0">
+    <span id="resultado">0</span>
+    <div id="incluir"></div>
+
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("input").change(function() {
+                var valor = $("input").val();
+                $("#resultado").text(valor);
+
+                $("#incluir").text("");
+                for(var i = 0; i < valor; i++) {
+                    $("#incluir").append("<img src='img/img1.jpg'>");
+
+                    $("img").mouseover(function() {
+                        $(this).attr("src","img/img2.jpg");
+                    });
+                    $("img").mouseout(function() {
+                        $(this).attr("src","img/img1.jpg");
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

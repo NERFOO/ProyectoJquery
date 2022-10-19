@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hospitales CRUD</h1>
+    <p>	En cada fila de hospital, tendremos un botón para eliminar el 
+        Propio registro.
+        También tendremos un botón editar que, al pulsar, mostrará
+        Los datos del hospital pulsado en las cajas de texto para
+        Su modificación.
+    </p>
+    <ul>
+        <li>/webresources/hospitales/{id}</li>
+        <li>/webresources/hospitales/post</li>
+        <li>/webresources/hospitales/put</li>
+        <li>/webresources/hospitales/delete/{id}</li>
+    </ul>
+
+    <table border="1" id="tablaHospitales">
+        <thead>
+            <tr>
+                <td>Id</td>
+                <td>Nombre</td>
+                <td>Direccion</td>
+                <td>Telefono</td>
+                <td>Camas</td>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div id="inputPut">
+        <br>
+        <input type="text" id="idInput" value="" placeholder="Id"><br>
+        <input type="text" id="nombreInput" value="" placeholder="Nombre"><br>
+        <input type="text" id="direccionInput" value="" placeholder="Direccion"><br>
+        <input type="text" id="telefonoInput" value="" placeholder="Telefono"><br>
+        <input type="text" id="camasInput" value="" placeholder="Camas"><br>
+        <button type="button" id="addHospital">Añadir</button>
+        <button type="button" id="modificarHospital">Modificar</button>
+    </div>
+
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script>
+        var urlHopstitales = "https://apicrudhospital.azurewebsites.net/";
+        var requestHospitales = "/webresources/hospitales/";
+
+        function mostrarHospitales() {
+            //GET
+            $.ajax({
+                "url": urlHopstitales + requestHospitales,
+                "method": "GET" ,
+                "dataType": "json" ,
+                "success": function(data) {
+
+                    $.each(data, function(index, hospital) {
+                        var filas = $("<tr>");
+
+                        var idhospital = $("<td>", { "text": hospital.idhospital });
+                        var nombre = $("<td>", { "text": hospital.nombre });
+                        var direccion = $("<td>", { "text": hospital.direccion });
+                        var telefono = $("<td>", { "text": hospital.telefono });
+                        var camas = $("<td>", { "text": hospital.camas });
+
+                        var cajaBoton = $("<td>");
+                        var btnEliminar = $("<button>", { "text": "Eliminar", "value": hospital.idhospital });
+
+                        filas.append(idhospital);
+                        filas.append(nombre);
+                        filas.append(direccion);
+                        filas.append(telefono);
+                        filas.append(camas);
+                        filas.append(cajaBoton);
+                        cajaBoton.append(btnEliminar);
+
+                        $("#tablaHospitales tbody").append(filas);
+
+                        //DELETE
+                        btnEliminar.click(function() {
+                            var numero = $(this).val();
+                            var request = "/webresources/hospitales/delete/" + numero;
+
+                            $("#tablaHospitales tbody").text("");
+
+                            $.ajax({
+                                "url": urlHopstitales + request ,
+                                "type": "DELETE" ,
+                                "success": function() {
+                                    console.log("Eliminado");
+                                    mostrarHospitales();
+                                }
+                            });
+                        });
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            mostrarHospitales();
+
+            //PUT
+            $("#modificarHospital").click(function() {
+                var id = parseInt($("#idInput").val());
+                var nom = $("#nombreInput").val();
+                var dir = $("#direccionInput").val();
+                var tel = $("#telefonoInput").val();
+                var cam = parseInt($("#camasInput").val());
+
+                var hospital = new Object();
+
+                hospital.idhospital = id;
+                hospital.nombre = nom;
+                hospital.direccion = dir;
+                hospital.telefono = tel;
+                hospital.camas = cam;
+
+                var dataJson = JSON.stringify(hospital);
+                console.log(dataJson);
+
+                var request = "/webresources/hospitales/put";
+
+                $("#tablaHospitales tbody").text("");
+                $.ajax({
+                    "url": urlHopstitales + request ,
+                    "type": "PUT" ,
+                    "data": dataJson ,
+                    "contentType": "application/json" ,
+                    "success": function() {
+                        console.log("Modificado");
+                        mostrarHospitales();
+                    }
+                });
+            });
+
+            //POST
+            $("#addHospital").click(function() {
+                var id = parseInt($("#idInput").val());
+                var nom = $("#nombreInput").val();
+                var dir = $("#direccionInput").val();
+                var tel = $("#telefonoInput").val();
+                var cam = parseInt($("#camasInput").val());
+                //DEBEMOS ENVIAR UN OBJETO JSON AL METODO POST
+                //CREAMOS UN NUEVO OBJETO JAVASCRIPT
+                var hospital = new Object();
+                //LAS PROPIEDADES DEBEN COINCIDIR CON EL SERVICIO
+                hospital.idhospital = id;
+                hospital.nombre = nom;
+                hospital.direccion = dir;
+                hospital.telefono = tel;
+                hospital.camas = cam;
+                //EL OBJETO CREADO DEBEMOS TRANSFORMARLO AL FORMATO DEL SERVICIO JSON
+                //PARA TRANSFORMAR A JSON: JSON.STRINGFY(OBJETO)
+                var dataJson = JSON.stringify(hospital);
+                console.log(dataJson);
+                //LAS PETICIONES NO GET UTILIZAN $.AJAX
+                //SI ENVIAMOS INFORMACION AL SERVICIO DEBEMOS INCLUIR DOS ELEMENTOS MAS DENTRO DE $.AJAX
+                // -contentType: EL TIPO DE DATO A ENVIAR
+                // -data: EL OBJETO A ENVIAR
+                var request = "/webresources/hospitales/post";
+
+                $("#tablaHospitales tbody").text("");
+                $.ajax({
+                    "url": urlHopstitales + request ,
+                    "type": "POST" ,
+                    "data": dataJson ,
+                    "contentType": "application/json" ,
+                    "success": function() {
+                        console.log("Insertado");
+                        mostrarHospitales();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
